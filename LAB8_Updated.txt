@@ -1,0 +1,198 @@
+8. Create the following application with JSP and Servlet.
+Create a Telephone Directory database that searches the database based on phone 
+number or name. Inserting values to the table obtaining the data from the front end.
+Directory Table should include attributes: Phone_Number, Name, Address, Company, 
+Pin_Code.
+##############################################webpage1.html##########################################################################
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Start Page</title>
+</head>
+<body>
+<form action="ServerSide" method="post">
+<h1>SEARCH BY USING PHONE NUMBER </h1>
+Enter Phone Number:<input type="text" name="phone">
+<input type="submit">
+</form>
+
+	<a href="webpage.jsp"><h1>Insert into database Directory</h1></a>
+
+</body>
+</html>
+
+##################################################webpage2.html#########################################################################
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Telephone Directory</title>
+</head>
+<body>
+		<form action="ServerSide" method="get">
+		<table>
+		<tr><td>Enter phone number:<input type="text"  name="phone"></td> </tr>
+		<tr><td>Enter name:<input type="text"  name="name"></td> </tr>
+		<tr><td>Enter address:<input type="text"  name="address"></td> </tr>
+		<tr><td>Enter company name:<input type="text"  name="company"></td> </tr>
+		<tr><td>Enter pin code:<input type="text"  name="pincode"></td> </tr>
+		<tr><td><input type="submit"></td></tr>
+		</table>
+		</form>
+</body>
+</html>
+#################################################### ServerSide.java #########################################################################
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement; 
+
+/**
+ * Servlet implementation class ServerSide
+ */
+public class ServerSide extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+    
+    public ServerSide() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String a=request.getParameter("phone");
+		String b=request.getParameter("name");
+		String c=request.getParameter("address");
+		String d=request.getParameter("company");
+		String e=request.getParameter("pincode");
+		PrintWriter out=response.getWriter();
+		out.println("<h1> hello "+b);
+		out.println("<h1> phone number:"+a);
+		try 
+		{
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			String url = "jdbc:mysql://localhost:3306/msrit";
+			String username = "root";
+			String password = "root123";
+
+			Connection con = DriverManager.getConnection(url, username, password);
+			
+			if (con != null) {
+				out.println("<h1>Database Connected successfully");
+			}
+			else
+			{
+			
+				out.println("Database Connection failed");
+			}		
+			Statement stm= con.createStatement();
+			String q1="insert into telephone values('"+a+"','"+b+"','"+c+"','"+d+"','"+e+"')";
+			stm.executeUpdate(q1);
+			out.println("<h1>----------TELEPHONE DIRECTORY DATABASE-------------------</h1>");
+			ResultSet rs= stm.executeQuery("select * from telephone");
+			out.println("<h2>Phone		Name 		Address		 Company 	Pin_Code</h2>");
+					
+			
+			while(rs.next())
+			{
+					out.println("<h2>"+rs.getString(1)+"		"+rs.getString(2)+"		"+rs.getString(3)+"   ");
+					out.println(rs.getString(4)+"    "+rs.getString(5)+"    "+"</h2>");
+			}
+			out.close();
+		}
+		catch(Exception e1)
+		{
+			e1.getStackTrace(); 
+		}
+		
+	
+		
+	}
+
+	
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String a=request.getParameter("phone");
+		
+		PrintWriter out=response.getWriter();
+		//out.println("<h1> hello "+b);
+		out.println("<h1> phone number:"+a);
+		try 
+		{
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			String url = "jdbc:mysql://localhost:3306/msrit";
+			String username = "root";
+			String password = "root123";
+
+			Connection con = DriverManager.getConnection(url, username, password);
+			
+			if (con != null) {
+				out.println("<h1>Database Connected successfully");
+			}
+			else
+			{
+			
+				out.println("Database Connection failed");
+			}		
+			Statement stm= con.createStatement();
+			
+			out.println("<h1>----------TELEPHONE DIRECTORY DATABASE-------------------</h1>");
+			ResultSet rs= stm.executeQuery("select * from telephone where phone="+a);
+			out.println("<h2>Phone		Name 		Address		 Company 	Pin_Code</h2>");
+					
+			
+			if(rs.next())
+			{
+					out.println("<h2>"+rs.getString(1)+"		"+rs.getString(2)+"		"+rs.getString(3)+"   ");
+					out.println(rs.getString(4)+"    "+rs.getString(5)+"    "+"</h2>");
+			}
+			else
+			{
+				out.println("<h1> Warnig!:No contact found");
+			}
+			out.close();
+		}
+		catch(Exception e1)
+		{
+			e1.getStackTrace(); 
+		}
+		
+	}
+	
+}
+##################################################### mysql ################################################################
+>mysql -u root -p
+Enter password: ********
+mysql> create database msrit;
+mysql> use msrit;
+mysql>create table hospital(phone  varchar(20)  not null primary key, 
+		           name varchar(20),
+	                           address varchar(20),
+	                           company varchar(20),
+		           pincode varchar(20));
+mysql> select * from telephone;
++------------+------------+-----------+---------+---------+
+| phone      | name       | address   | company | pincode |
++------------+------------+-----------+---------+---------+
+|            |            |           |         |         |
+| 4444777700 | Rama       | Bengaluru | Infy    | 560055  |
+| 6666777700 | Gouri      | Hyd       | Wipro   | 890056  |
+| 7744220011 | Harish     | Delhi     | HP      | 560055  |
+| 8888555500 | Veena      | jaipur    | TATA    | 890065  |
+| 8888999900 | Tejus      | Hubli     | Intel   | 560043  |
+| 9000011119 | Sachin M N | Mys       | Govt    | 560078  |
+| 9741278570 | SGowda     | Ramanagar | MSRIT   | 560054  |
+| 9999888800 | Kittu      | Patna     | JSW     | 670089  |
+| null       | null       | null      | null    | null    |
++------------+------------+-----------+---------+---------+
